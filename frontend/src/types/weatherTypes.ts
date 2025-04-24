@@ -5,6 +5,7 @@ export interface Location {
 }
 
 export interface WeatherData {
+  englishCondition?: string,
   temperature: number;
   feelsLike: number;
   minTemp: number;

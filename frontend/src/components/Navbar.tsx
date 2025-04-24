@@ -11,11 +11,11 @@ const Navbar: React.FC = () => {
             <span className="text-2xl font-bold text-white">WeatherView</span>
           </div>
           
-          <div className="hidden md:flex items-center space-x-6">
+          {/* <div className="hidden md:flex items-center space-x-6">
             <a href="#" className="text-white hover:text-blue-200 transition-colors">Home</a>
             <a href="#" className="text-white hover:text-blue-200 transition-colors">Maps</a>
             <a href="#" className="text-white hover:text-blue-200 transition-colors">About</a>
-          </div>
+          </div> */}
           
           <button className="md:hidden text-white hover:text-blue-200 focus:outline-none">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

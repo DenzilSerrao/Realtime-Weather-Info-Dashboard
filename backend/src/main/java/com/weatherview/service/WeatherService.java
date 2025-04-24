@@ -16,12 +16,14 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class WeatherService {
 
     private final RestTemplate restTemplate;
     private final OpenWeatherConfig openWeatherConfig;
+    private final AtomicReference<CurrentWeatherDTO> cachedCurrentWeather = new AtomicReference<>(null);
 
     @Autowired
     public WeatherService(RestTemplate restTemplate, OpenWeatherConfig openWeatherConfig) {
@@ -30,36 +32,32 @@ public class WeatherService {
     }
 
     public CurrentWeatherDTO getCurrentWeather(String city) {
-        String url = UriComponentsBuilder
-                .fromHttpUrl(openWeatherConfig.getApiUrl() + "/weather")
-                .queryParam("q", city)
-                .queryParam("units", "metric")
-                .queryParam("appid", openWeatherConfig.getApiKey())
-                .build()
-                .toUriString();
+        // Return cached value if available
+        if (cachedCurrentWeather.get() != null) {
+            return cachedCurrentWeather.get();
+        }
+
+        // Use the provided API endpoint (ignores 'city' due to strict rate limits)
+        String url = "https://api.openweathermap.org/data/2.5/weather?lat=44.34&lon=10.99&appid=77f0272a2a80fc0de1868e1f92ef34f1";
 
         try {
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
-            
             if (response == null) {
                 throw new WeatherApiException("Received null response from OpenWeather API");
             }
 
-            // Parse the OpenWeatherMap API response to our DTO
-            double temp = response.path("main").path("temp").asDouble();
+            // Parse values using the JSON structure provided
+            double temperature = response.path("main").path("temp").asDouble();
             double feelsLike = response.path("main").path("feels_like").asDouble();
             double minTemp = response.path("main").path("temp_min").asDouble();
             double maxTemp = response.path("main").path("temp_max").asDouble();
             int humidity = response.path("main").path("humidity").asInt();
             double windSpeed = response.path("wind").path("speed").asDouble();
-            String condition = response.path("weather").path(0).path("main").asText();
-            
-            // UV Index isn't available in the basic current weather call
-            // In a real app, we'd make a separate call to the OneCall API to get this
-            int uvIndex = 5; // Default/placeholder value
+            String condition = response.path("weather").get(0).path("description").asText();
+            int uvIndex = 0; // API does not provide UV index
 
-            return CurrentWeatherDTO.builder()
-                    .temperature(temp)
+            CurrentWeatherDTO currentWeather = CurrentWeatherDTO.builder()
+                    .temperature(temperature)
                     .feelsLike(feelsLike)
                     .minTemp(minTemp)
                     .maxTemp(maxTemp)
@@ -69,6 +67,8 @@ public class WeatherService {
                     .uvIndex(uvIndex)
                     .build();
 
+            cachedCurrentWeather.set(currentWeather);
+            return currentWeather;
         } catch (Exception e) {
             throw new WeatherApiException("Error fetching current weather data: " + e.getMessage(), e);
         }
@@ -85,7 +85,7 @@ public class WeatherService {
 
         try {
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
-            
+
             if (response == null) {
                 throw new WeatherApiException("Received null response from OpenWeather API");
             }
@@ -93,7 +93,7 @@ public class WeatherService {
             // Process the forecast data to create a 5-day forecast
             JsonNode list = response.path("list");
             List<DailyForecastDTO> dailyForecasts = new ArrayList<>();
-            
+
             // We need to convert the 3-hour forecasts into daily forecasts
             // This is a simplified implementation
             LocalDate currentDate = null;
@@ -101,14 +101,14 @@ public class WeatherService {
             double minTemp = Double.MAX_VALUE;
             String dominantCondition = "";
             int conditionCounts = 0;
-            
+
             for (JsonNode item : list) {
                 // Get date from timestamp
                 long timestamp = item.path("dt").asLong();
                 LocalDate forecastDate = Instant.ofEpochSecond(timestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
-                
+
                 // If we've moved to a new day
                 if (currentDate != null && !forecastDate.equals(currentDate)) {
                     // Add the previous day's forecast
@@ -118,29 +118,29 @@ public class WeatherService {
                             .minTemp(minTemp)
                             .condition(dominantCondition)
                             .build());
-                    
+
                     // Reset for new day
                     maxTemp = Double.MIN_VALUE;
                     minTemp = Double.MAX_VALUE;
                     dominantCondition = "";
                     conditionCounts = 0;
                 }
-                
+
                 // Update current date
                 currentDate = forecastDate;
-                
+
                 // Update min/max temp
                 double temp = item.path("main").path("temp").asDouble();
                 maxTemp = Math.max(maxTemp, temp);
                 minTemp = Math.min(minTemp, temp);
-                
-                // Update condition (very simplified approach - in reality you'd want a better algorithm)
+
+                // Update condition (very simplified approach)
                 String condition = item.path("weather").path(0).path("main").asText();
                 if (conditionCounts == 0 || condition.equals(dominantCondition)) {
                     dominantCondition = condition;
                     conditionCounts++;
                 }
-                
+
                 // Stop once we have 5 days
                 if (dailyForecasts.size() >= 4 && !forecastDate.equals(currentDate)) {
                     // Add the last day
@@ -153,7 +153,7 @@ public class WeatherService {
                     break;
                 }
             }
-            
+
             // In case we haven't added the last day yet
             if (dailyForecasts.size() < 5 && currentDate != null) {
                 dailyForecasts.add(DailyForecastDTO.builder()
