@@ -1,74 +1,70 @@
 # WeatherView Application
 
-A beautiful weather application that allows users to view current weather conditions and forecasts for locations around the world.
+WeatherView is a beautiful weather application that allows users to view current weather conditions and a 5-day forecast for locations around the world. The application features a responsive UI with animations and transitions that change based on the weather conditions.
 
 ## Features
 
 - Select locations from a dropdown menu
-- View current weather conditions including temperature, humidity, wind speed, and more
+- View current weather details including temperature, humidity, wind speed, and more
 - See a 5-day weather forecast
-- Responsive design that works on all device sizes
-- Beautiful UI with animations and transitions based on weather conditions
+- Multilingual support with dynamic language switching
+- Beautiful UI with animations and transitions that reflect weather conditions
+- Integrated pipeline for building and running using Maven
 
 ## Tech Stack
 
 ### Frontend
-- React with TypeScript
-- Tailwind CSS for styling
-- Lucide React for icons
-- Vite for bundling and development
+
+- **React with TypeScript** – Modern, typed React application
+- **Vite** – Fast front-end build tool and development server
+- **Tailwind CSS** – Utility-first CSS framework for styling
+- **Lucide React** – Icon library for a modern look
+- **Azure DevOps** – CI/CD pipeline integrated with Maven for Node.js
 
 ### Backend
-- Java with Spring Boot
-- Maven for dependency management
-- RESTful API architecture
-- Integration with OpenWeatherMap API
+
+- **Java with Spring Boot** – Robust backend API for weather data
+- **Maven** – Dependency management and build orchestration
+- **RESTful API architecture** – Integration with external weather APIs (OpenWeatherMap & WeatherAPI)
+
+### Node.js Integration (Frontend Maven Project)
+
+- **frontend-maven-plugin** – Manages Node.js, runs npm commands, and builds the React project
+- **Azure Pipelines** – CI/CD setup that builds the Node.js project using Maven and publishes build artifacts
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Java Development Kit (JDK) 17 or higher
-- Maven 3.6 or higher
 
-### Frontend Setup
+- Java JDK 11 or higher
+- Node.js (managed via the frontend-maven-plugin)
+- Maven 3.6+
+- An Azure DevOps account for CI/CD (optional)
 
-1. Install dependencies:
-```
-npm install
-```
+### Installation
 
-2. Start the development server:
-```
-npm run dev
-```
+1. **Clone the repository:**
 
-The application will be available at http://localhost:5173
+   ```bash
+   git clone https://your-repo-url.git
+   cd Devops
+   ```
 
-### Backend Setup
+2. **Build and run the project:**
 
-1. Navigate to the backend directory:
-```
-cd backend
-```
+   - Build the project:
+     ```bash
+     mvn clean install
+     ```
+   - Run the frontend:
+     ```bash
+     mvn clean install -Prun
+     ```
+   - The frontend will start on `http://localhost:5173/` by default.
 
-2. Set your OpenWeatherMap API key in `src/main/resources/application.properties`:
-```
-openweather.api.key=YOUR_API_KEY_HERE
-```
+3. **Access the application:**
+   - Open your browser and navigate to `http://localhost:5173/` to view the WeatherView application.
 
-3. Build and run the application:
-```
-mvn spring-boot:run
-```
+### Notes
 
-The backend server will start on http://localhost:8080
-
-## API Endpoints
-
-- `/api/weather/current?city={cityName}` - Get current weather for a city
-- `/api/weather/forecast?city={cityName}` - Get 5-day forecast for a city
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- If you encounter any issues, check the logs for detailed error messages and ensure all prerequisites are installed correctly.
