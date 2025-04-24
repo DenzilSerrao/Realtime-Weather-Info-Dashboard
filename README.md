@@ -46,8 +46,8 @@ WeatherView is a beautiful weather application that allows users to view current
 1. **Clone the repository:**
 
    ```bash
-   git clone https://your-repo-url.git
-   cd Devops
+   git clone https://github.com/DenzilSerrao/Realtime-Weather-Info-Dashboard-using-Maven-and-Asure-Devops.git
+   cd Realtime-Weather-Info-Dashboard-using-Maven-and-Asure-Devops
    ```
 
 2. **Build and run the project:**
