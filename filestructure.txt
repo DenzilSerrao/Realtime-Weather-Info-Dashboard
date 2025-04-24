@@ -1,12 +1,9 @@
 |-- .gitignore
-|-- asure-pipelines.yml
 |-- azure-pipelines.yml
 |-- eslint.config.js
 |-- frontend
     |-- node
         |-- node.exe
-        |-- npm
-        |-- npm.cmd
 |-- index.html
 |-- package-lock.json
 |-- package.json
