@@ -21,6 +21,7 @@
           <workingDirectory>frontend</workingDirectory>
         </configuration>
         <executions>
+          <!-- Install Node.js and npm -->
           <execution>
             <id>install node and npm</id>
             <goals>
@@ -30,6 +31,7 @@
               <nodeVersion>v18.0.0</nodeVersion>
             </configuration>
           </execution>
+          <!-- Install Node dependencies -->
           <execution>
             <id>npm install</id>
             <goals>
@@ -39,6 +41,7 @@
               <arguments>install</arguments>
             </configuration>
           </execution>
+          <!-- Build the project -->
           <execution>
             <id>npm run build</id>
             <goals>
@@ -52,4 +55,32 @@
       </plugin>
     </plugins>
   </build>
+
+  <!-- Profile to start the project -->
+  <profiles>
+    <profile>
+      <id>run</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>npm start</id>
+                <!-- Bind to a phase that you can invoke explicitly without interfering with normal builds -->
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <configuration>
+                  <arguments>run dev</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
